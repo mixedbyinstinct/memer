@@ -1,182 +1,152 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
-import styled, { createGlobalStyle, keyframes } from 'styled-components';
-import heading from './Syne-ExtraBold.ttf';
-import buttons from './Syne-Bold.ttf';
-import text from './Barlow-Regular.otf';
-
-const growWobble = keyframes`
-0% {
-  height: 40px;
-  font-size: 1em;
-}
-100% {
-  height: 80px;
-  font-size: 2em;
-}
-`
-
-const GlobalStyles = createGlobalStyle`
-@font-face {
-  font-family: 'heading';
-  src: url(${heading}) format('truetype');
-  font-weight: bold;
-}
-@font-face {
-  font-family: 'buttons';
-  src: url(${buttons}) format('truetype');
-  font-weight: bold;
-}
-@font-face {
-  font-family: 'text';
-  src: url(${text}) format('opentype');
-  font-weight: bold;
-}
-body {
-  background-color: #2e2f5b;
-  & h1 {
-    font-family: 'heading';
-    font-size: 32px;
-  }
-  & p {
-    font-family: 'text';
-  }
-  & button {
-    font-family: 'buttons';
-  }
-}
-`;
-
-const Head = styled.header`
-display: flex;
-align-items: center;
-justify-content: center;
-margin-bottom: 6px;
-color: #eaeaef;
-& h1 {
-  text-align: center;
-}
-`;
-
-
-
-const Jumbotron = styled.header`
-background-color: #2e2f5b;
-height: 55vh;
-width: 100vw;
-${Head} & h1 {
-  font-family: 'heading';
-  font-size: 32px;
-  color: #eaeaef;
-  position: absolute;
-  top: 0;
-}
-display: flex;
-flex-flow: column nowrap;
-justify-content: center;
-align-items: center;
-padding: 15px;
-flex-shrink: 2;
-`;
-
-const Main = styled.div`
-background-color: #faf0ca;
-height: 46vh;
-width: 100vw;
-border-top-right-radius: 15px;
-border-top-left-radius: 15px;
-display: flex;
-flex-flow: column nowrap;
-justify-content: center;
-align-items: center;
-padding: 15px;
-& p {
-  font-family: 'text';
-  font-size: 16px;
-  color: #050509;
-}
-& input[type="text"] {
-  height: 30px;
-  font-size: 16px;
-  font-family: 'text';
-  color: #050509;
-  text-align: center;
-  border: none;
-  border-radius: 6px;
-}
-& label {
-  font-family: 'text';
-  font-size: 14px;
-  margin-bottom: 5px;
-  color: #050509;
-}
-filter: drop-shadow(0 -7px 8px #eaeaef);
-flex-grow: 1;
-`;
-
-const ButtonRow = styled.div`
-display: flex;
-flex-flow: row nowrap;
-padding: 8px;
-justify-content: space-evenly;
-align-items: space-evenly;
-`;
-
-const Button = styled.button`
-background-color: #f4d35e;
-color: #050509;
-text-align: center;
-padding: 8px;
-font-family: 'buttons';
-font-size: 18px;
-height: 40px;
-border: none;
-border-radius: 5px;
-${props => props.loading &&`
-  animation: growWobble infinite ease-in-out;
-  `
-}
-`;
-
-const GenerateButton = styled(Button)`
-background-color: #505581;
-color: #fffefa;
-margin-top: 8px;
-`;
-
-const Box = styled.div`
-height: 300px;
-width: 198px;
-border: 1px solid #eaeaef;
-background: transparent;
-`;
+import axios from 'axios';
+import {GlobalStyles, Head, Jumbotron, Container, Main, GenerateButton, AgainButton, Button, ButtonRow, ButtonGrid, Box} from '../styles/App.styled';
 
 const App = () => {
+  let index = Math.floor(Math.random() * 100);
+  const [url, setUrl] = useState('');
+  const [message, setMessage] = useState('');
+  const [topText, setTopText] = useState('');
+  const [bottomText, setBottomText] = useState('');
+  const [id, setId] = useState('');
+  const [name, setName] = useState('');
+  const [gotOne, setGotOne] = useState(false);
   const [loading, setLoading] = useState(false);
-  function toggleLoading() {
-    setLoading(!loading);
+  const [showMessage, setShowMessage] = useState(false);
+  const [memed, setMemed] = useState(false);
+  const [showAgainButton, setShowAgainButton] = useState(false);
+  
+  function modifyTop(e) {
+    setTopText(e.target.value);
   }
+  
+  function modifyBottom(e) {
+    setBottomText(e.target.value);
+  }
+  
+  function modifyName(e) {
+    setName(e.target.value);
+  }
+  
+  function checkDb() {
+    axios.get("/dbtest").then(({data}) => data.success ? alert('can connect to db') : null);
+  }
+  
+  function getTemplate() {
+    setLoading(true);
+    // api request
+    axios.get("https://api.imgflip.com/get_memes").then(({data}) => {
+      setLoading(false);
+      // reset index counter if its at 100
+      if(index === 100) {
+        index = Math.floor(Math.random() * 100)
+      }
+      // check if the template at the index in the array equal to the index counter only has 2 text boxes
+      let only2Boxes = /(2$)/.test(data.data.memes[index].box_count)
+      // if it does set relevant state variables to display it and store its id #
+      if(only2Boxes) {
+        setUrl(data.data.memes[index].url);
+        setGotOne(true);
+        setId(data.data.memes[index].id);
+      } else {
+        // otherwise increment the index counter and recurse
+          index++
+          getTemplate();
+      }
+    })
+  }
+  
+  function scrap() {
+    setGotOne(false);
+    setUrl('');
+    swtMessage('');
+    setShowMessage(false);
+    setMemed(false);
+    index = Math.floor(Math.random() * 100);
+  }
+  
+  function again() {
+    scrap();
+    setShowAgainButton(false);
+    getTemplate();
+  }
+  
+  function save() {
+    let formData = new FormData();
+    
+    formData.append("newMeme", url);
+    formData.append("name", name);
+    
+    axios.post("/save-meme", formData).then(({data}) => {
+      data.dbConnect ? alert('db connected') : null;
+      data.memeSaved ? setShowAgainButton(true) : null;
+      setMessage(data.message);
+      setShowMessage(true);
+    })
+  }
+  
+  function letsGo() {
+    setGotOne(false);
+    let formData = new FormData();
+    formData.append("username", "mixedbyinstinct");
+    formData.append("password", "i-am-him");
+    formData.append("template_id", id);
+    formData.append("text0", topText);
+    formData.append("text1", bottomText);
+    axios.post("https://api.imgflip.com/caption_image", formData).then(({data}) => {
+      if(data.success) {
+        setGotOne(true);
+        setUrl(data.data.url);
+        setMemed(true);
+      } else {
+        setMessage(data.error_message);
+        setShowMessage(true);
+      }
+    })
+    setTopText('');
+    setBottomText('');
+  }
+  
   return (
-    <>
+    <Container>
     <GlobalStyles />
     <Jumbotron>
     <Head>
     <h1>Memes Make The World Go Round</h1>
     </Head>
-    <Box />
-    <GenerateButton>Find a Template</GenerateButton>
+    <Box>
+    {gotOne ? <img src={url} alt="error" /> : <div />}
+    </Box>
+    <GenerateButton onClick={getTemplate}>Find a Template</GenerateButton>
     </Jumbotron>
     <Main>
+    <h1>Make it so #1</h1>
     <label>Top Text</label>
-    <input type="text" />
+    <input type="text" onChange={modifyTop} value={topText}/>
     <label>Bottom Text</label>
-    <input type="text" />
+    <input type="text" onChange={modifyBottom} value={bottomText}/>
+    <ButtonGrid>
     <ButtonRow>
-    <Button loading={loading} onClick={toggleLoading}>Meme It Up</Button>
-    <Button>Scrap It</Button>
+    <Button onClick={letsGo}>Meme It Up</Button>
+    <Button onClick={scrap}>Scrap It</Button>
     </ButtonRow>
+    {memed ?
+      <>
+      <label>Your Name:</label>
+      <input type="text" onChange={modifyName} value={name}/>
+      <Button onClick={save}>Save Meme</Button> 
+      </> :
+      <div />
+    }
+    </ButtonGrid>
+    {showMessage ? <p>{message}</p> : <div />}
+    {showAgainButton ? 
+       <AgainButton onClick={again}>OK</AgainButton> :
+       <div />
+    }
     </Main>
-    </>
+    </Container>
   );
 }
 
