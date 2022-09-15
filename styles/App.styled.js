@@ -58,9 +58,22 @@ color: #e6e8e6;
 }
 `;
 
+export const Line = styled.div`
+background-color: #f7f7f7;
+height: 1.3px;
+width: 85%;
+margin-top: 3px;
+margin-bottom: 3px;
+border-radius: 35%;
+position: absolute;
+top: 74%;
+`
+
 export const Container = styled.div`
 display: flex;
-align-items: center;
+justify-content: center;
+
+padding: 10px;
 `
 
 export const Jumbotron = styled.header`
@@ -70,19 +83,16 @@ width: 98vw;
 display: flex;
 position: absolute;
 top: 0;
-left: 2vw;
-right: 2vw;
 border-top-left-radius: 6px;
 border-top-right-radius: 6px;
 flex-flow: column nowrap;
 justify-content: center;
 align-items: center;
-padding: 5px;
+padding: 15px;
 `;
 
 export const Main = styled.div`
 background-color: #00ff2f;
-height: 46vh;
 width: 100vw;
 position: absolute;
 left: 0;
@@ -120,7 +130,7 @@ padding: 15px;
   margin-bottom: 5px;
   color: #080708;
 }
-filter: drop-shadow(0 -4px 5px #e6e8e6);
+filter: drop-shadow(0 -2px 5px #e6e8e6);
 flex-grow: 1;
 `;
 
@@ -154,8 +164,7 @@ border-radius: 5px;
 export const GenerateButton = styled(Button)`
 background-color: #19248b;
 color: #fffefa;
-margin-top: 8px;
-}
+margin-top: 23px;
 `;
 
 export const AgainButton = styled(Button)`
@@ -163,13 +172,51 @@ background-color: #212021;
 color: #fffefa;
 `
 
+export const SaveBox = styled.div`
+background-color: #51ab61;
+display: flex;
+flex-flow: column nowrap;
+justify-content: center; arrange-items: center;
+flex-grow: 9;
+height: 60%;
+& p {
+  font-family: 'text';
+  font-size: 16px;
+  color: #080708;
+}
+& h1 {
+  font-size: 20px;
+  color: #080708;
+  text-shadow(0 2px 4px #f7f7f7);
+}
+& input[type="text"] {
+  background-color: e6e8e6;
+  height: 30px;
+  font-size: 16px;
+  font-family: 'text';
+  color: #080708;
+  text-align: center;
+  border: none;
+  border-radius: 6px;
+}
+& label {
+  font-family: 'text';
+  font-size: 14px;
+  margin-bottom: 5px;
+  color: #080708;
+}
+padding: 15px;
+`
+
 export const Box = styled.div`
-height: 175px;
-width: 173px;
+height: 220px;
+width: 176px;
 & img {
   height: 100%;
   width: 100%;
   border-radius: 2px;
+  margin-top: 10px; margin-bottom: 5px;
 }
 background: transparent;
+margin-top: 30px;
 `;

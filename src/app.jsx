@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
-import {GlobalStyles, Head, Jumbotron, Container, Main, GenerateButton, AgainButton, Button, ButtonRow, ButtonGrid, Box} from '../styles/App.styled';
+import {GlobalStyles, Head, Jumbotron, Container, Main, GenerateButton, AgainButton, Button, ButtonRow, ButtonGrid, Box, SaveBox} from '../styles/App.styled';
 
 const App = () => {
   let index = Math.floor(Math.random() * 100);
@@ -16,6 +16,7 @@ const App = () => {
   const [showMessage, setShowMessage] = useState(false);
   const [memed, setMemed] = useState(false);
   const [showAgainButton, setShowAgainButton] = useState(false);
+  const saveRef = useRef(null);
   
   function modifyTop(e) {
     setTopText(e.target.value);
@@ -30,7 +31,7 @@ const App = () => {
   }
   
   function checkDb() {
-    axios.get("/dbtest").then(({data}) => data.success ? alert('can connect to db') : null);
+    axios.get("/dbtest").then(({data}) => alert(data.memes));
   }
   
   function getTemplate() {
@@ -60,7 +61,7 @@ const App = () => {
   function scrap() {
     setGotOne(false);
     setUrl('');
-    swtMessage('');
+    setMessage('');
     setShowMessage(false);
     setMemed(false);
     index = Math.floor(Math.random() * 100);
@@ -70,6 +71,7 @@ const App = () => {
     scrap();
     setShowAgainButton(false);
     getTemplate();
+
   }
   
   function save() {
@@ -79,7 +81,7 @@ const App = () => {
     formData.append("name", name);
     
     axios.post("/save-meme", formData).then(({data}) => {
-      data.dbConnect ? alert('db connected') : null;
+      //data.dbConnect ? alert('db connected') : null;
       data.memeSaved ? setShowAgainButton(true) : null;
       setMessage(data.message);
       setShowMessage(true);
@@ -106,6 +108,7 @@ const App = () => {
     })
     setTopText('');
     setBottomText('');
+    saveRef.current.focus();
   }
   
   return (
@@ -118,7 +121,10 @@ const App = () => {
     <Box>
     {gotOne ? <img src={url} alt="error" /> : <div />}
     </Box>
-    <GenerateButton onClick={getTemplate}>Find a Template</GenerateButton>
+    <GenerateButton onClick={() => {
+      checkDb();
+      getTemplate();
+     }}>Find a Template</GenerateButton>
     </Jumbotron>
     <Main>
     <h1>Make it so #1</h1>
@@ -134,7 +140,7 @@ const App = () => {
     {memed ?
       <>
       <label>Your Name:</label>
-      <input type="text" onChange={modifyName} value={name}/>
+      <input ref={saveRef} type="text" onChange={modifyName} value={name}/>
       <Button onClick={save}>Save Meme</Button> 
       </> :
       <div />
@@ -142,9 +148,9 @@ const App = () => {
     </ButtonGrid>
     {showMessage ? <p>{message}</p> : <div />}
     {showAgainButton ? 
-       <AgainButton onClick={again}>OK</AgainButton> :
-       <div />
+       <AgainButton onClick={again}>OK</AgainButton> : <div />
     }
+
     </Main>
     </Container>
   );

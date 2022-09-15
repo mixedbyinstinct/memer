@@ -50,7 +50,19 @@ app.get('/', (req, res) => {
 
 app.get('/dbtest', (req, res) => {
   console.log('dbtest called');
-  mongoose.connect(uri).then(res.json({success: true}));
+  MongoClient.connect(uri, function(err, db) {
+    if(err) {
+      console.error(err);
+    }
+    console.log('connected');
+    let dbo = db.db('personal-site-db');
+    let memes = dbo.collection("memes").find().toArray();
+    console.log(memes);
+    res.json({
+      memes: memes
+    })
+    db.close();
+  })
 })
 
 app.post('/save-meme', upload.single('newMeme'), (req, res) => {
