@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
 import {GlobalStyles, Head, Jumbotron, Container, Main, GenerateButton, AgainButton, Button, ButtonRow, ButtonGrid, Box, SaveBox} from '../styles/App.styled';
+import Memes from './memes.jsx';
 
 const App = () => {
   let index = Math.floor(Math.random() * 100);
@@ -10,13 +11,14 @@ const App = () => {
   const [topText, setTopText] = useState('');
   const [bottomText, setBottomText] = useState('');
   const [id, setId] = useState('');
-  const [name, setName] = useState('');
+  const [name, setName] = useState(null);
   const [gotOne, setGotOne] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showMessage, setShowMessage] = useState(false);
   const [memed, setMemed] = useState(false);
   const [showAgainButton, setShowAgainButton] = useState(false);
   const saveRef = useRef(null);
+  const [memeGrid, showMemeGrid] = useState(false);
   
   function modifyTop(e) {
     setTopText(e.target.value);
@@ -28,6 +30,14 @@ const App = () => {
   
   function modifyName(e) {
     setName(e.target.value);
+  }
+  
+  function deleteMemes() {
+    showMemeGrid(false);
+    axios.get("/clearmemes").then(({data}) => {
+      setShowMessage(true);
+      setMessage(data.message);
+    })
   }
   
   function checkDb() {
@@ -75,14 +85,15 @@ const App = () => {
   }
   
   function save() {
-    let formData = new FormData();
+    let send = {
+      name: name,
+      id: id,
+      url: url
+    };
     
-    formData.append("newMeme", url);
-    formData.append("name", name);
-    
-    axios.post("/save-meme", formData).then(({data}) => {
+    axios.post("/save-meme", send).then(({data}) => {
       //data.dbConnect ? alert('db connected') : null;
-      data.memeSaved ? setShowAgainButton(true) : null;
+      data.dbSave ? setShowAgainButton(true) : null;
       setMessage(data.message);
       setShowMessage(true);
     })
@@ -121,10 +132,12 @@ const App = () => {
     <Box>
     {gotOne ? <img src={url} alt="error" /> : <div />}
     </Box>
+    <ButtonRow>
     <GenerateButton onClick={() => {
-      checkDb();
       getTemplate();
      }}>Find a Template</GenerateButton>
+     <GenerateButton onClick={() => showMemeGrid(true)}>Your Memes</GenerateButton>
+    </ButtonRow>
     </Jumbotron>
     <Main>
     <h1>Make it so #1</h1>
@@ -150,10 +163,14 @@ const App = () => {
     {showAgainButton ? 
        <AgainButton onClick={again}>OK</AgainButton> : <div />
     }
-
+    {memeGrid ? 
+    <>
+    <Memes /> 
+    <Button onClick={deleteMemes}>Clear Memes</Button>
+    </> : <div />}
     </Main>
     </Container>
   );
 }
 
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(<App />, document.getElementById('app'));

@@ -1,4 +1,4 @@
-  const path = require('path');
+const path = require('path');
  const HtmlWebPackPlugin = require("html-webpack-plugin");
  const htmlPlugin = new HtmlWebPackPlugin({
   template: "./src/index.html", 
@@ -45,9 +45,11 @@ module.exports = {
           options: { 
             limit: 8000,
             name: 'images/[hash]-[name].[ext]'
-          }
-        }],
-     test: /\.(otf|ttf)$/,
+          } 
+        }]
+      },
+       {
+        test: /\.(otf|ttf)$/,
         use: [
         {
           loader: 'file-loader',
@@ -57,13 +59,7 @@ module.exports = {
             mimetype: 'application/font-woff',
           },
         }],
-      }
+      },
     ]
   },
-  plugins: [],
-  output: {
-    filename: '[name].bundle.js',
-    path: path.resolve(__dirname, './dist'),
-    publicPath: '/'
-  }
 };
